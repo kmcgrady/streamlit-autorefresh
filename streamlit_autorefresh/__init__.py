@@ -25,11 +25,11 @@ if not _RELEASE:
         # We give the component a simple, descriptive name ("my_component"
         # does not fit this bill, so please choose something better for your
         # own component :)
-        "st_google_oauth",
+        "st_autorefresh",
         # Pass `url` here to tell Streamlit that the component will be served
         # by the local dev server that you run via `npm run start`.
         # (This is useful while your component is in development.)
-        url="https://5e31c462455e.ngrok.io",
+        url="http://localhost:3001",
     )
 else:
     # When we're distributing a production version of the component, we'll
@@ -37,7 +37,7 @@ else:
     # build directory:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, "frontend/build")
-    _component_func = components.declare_component("st_google_oauth", path=build_dir)
+    _component_func = components.declare_component("st_autorefresh", path=build_dir)
 
 
 # Create a wrapper function for the component. This is an optional
@@ -45,13 +45,17 @@ else:
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def st_autorefresh(interval=1000, key=None):
-    """Create a new instance of "my_component".
+def st_autorefresh(interval=1000, limit=None, key=None):
+    """Create an autorefresh instance to trigger a refresh of the application
 
     Parameters
     ----------
     interval: int
         Amount of time in milliseconds to 
+    limit: int or None
+        Amount of refreshes to allow. If none, it will refresh infinitely.
+        While infinite refreshes sounds nice, it will continue to utilize
+        computing resources.
     key: str or None
         An optional key that uniquely identifies this component. If this is
         None, and the component's arguments are changed, the component will
@@ -63,7 +67,7 @@ def st_autorefresh(interval=1000, key=None):
         Number of times the refresh has been triggered or max value of int
     """
 
-    count = _component_func(client_id=credentials.client_id, client_secret=credentials.client_secret, scopes=scopes, key=key, default=None)
+    count = _component_func(interval=interval, limit=limit, key=key, default=None)
     if count is None:
         return 0
 
@@ -81,15 +85,15 @@ if not _RELEASE:
     # it is considered a new instance and will be re-mounted on the frontend
     # and lose its current state. In this case, we want to vary the component's
     # "name" argument without having it get recreated.
-    count = st_autorefresh(1000)
+    count = st_autorefresh(5000)
 
     if count is 0:
         st.write("Count is zero")
-    elif count % 5 == 0 and count % 3 == 0:
+    elif count % 3 == 0 and count % 5 == 0:
+        st.write("FizzBuzz")
+    elif count % 3 == 0:
         st.write("Fizz")
     elif count % 5 == 0:
-        st.write("Fizz")
-    elif count % 3 == 0:
         st.write("Buzz")
     else:
         st.write(f"Count: {count}")

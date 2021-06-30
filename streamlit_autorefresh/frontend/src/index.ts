@@ -21,14 +21,18 @@ function onRender(event: Event): void {
   document.body.innerHTML = ""
   // Get the RenderData from the event
   const data = (event as CustomEvent<RenderData>).detail
+  const refreshLimit = data.args.limit ? parseInt(data.args.limit, 10) : null
+  const refreshInterval = parseInt(data.args.interval, 10)
   if (interval) {
     clearInterval(interval)
   }
 
-  interval = window.setInterval(
-    () => Streamlit.setComponentValue(refreshCounter()),
-    parseInt(data.args.interval, 10)
-  )
+  interval = window.setInterval(() => {
+    const newCount = Math.min(refreshCounter(), Number.MAX_SAFE_INTEGER)
+    if (!refreshLimit || newCount < refreshLimit) {
+      Streamlit.setComponentValue(newCount)
+    }
+  }, refreshInterval)
 }
 
 // Attach our `onRender` handler to Streamlit's render event.
