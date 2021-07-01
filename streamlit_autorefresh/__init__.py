@@ -85,7 +85,7 @@ if not _RELEASE:
     # "name" argument without having it get recreated.
     count = st_autorefresh(5000)
 
-    if count is 0:
+    if count == 0:
         st.write("Count is zero")
     elif count % 3 == 0 and count % 5 == 0:
         st.write("FizzBuzz")
