@@ -28,6 +28,7 @@ pip install streamlit-autorefresh
 # Example Usage
 
 ```python
+import streamlit as st
 from streamlit_autorefresh import st_autorefresh
 
 # Run the autorefresh about every 2000 milliseconds (2 seconds) and stop
