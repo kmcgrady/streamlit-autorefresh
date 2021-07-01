@@ -1,9 +1,9 @@
 import { Streamlit, RenderData } from "streamlit-component-lib"
 
-function counter() {
+function counter(): () => number {
   let count = 0
 
-  return function () {
+  return function (): number {
     count += 1
     return count
   }
@@ -29,8 +29,12 @@ function onRender(event: Event): void {
 
   interval = window.setInterval(() => {
     const newCount = Math.min(refreshCounter(), Number.MAX_SAFE_INTEGER)
+    // There is no refresh counter or we are within the limit
     if (!refreshLimit || newCount < refreshLimit) {
       Streamlit.setComponentValue(newCount)
+    } else {
+      // No need to keep pinging, so clear the interval
+      clearInterval(interval)
     }
   }, refreshInterval)
 }

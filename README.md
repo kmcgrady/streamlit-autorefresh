@@ -1,81 +1,65 @@
-# Streamlit Component Templates
+# Streamlit Autorefresh
 
-This repo contains templates and example code for creating [Streamlit](https://streamlit.io) Components.
-
-For complete information, please see the [Streamlit Components documentation](https://docs.streamlit.io/en/latest/streamlit_components.html)!
-
+Streamlit component to force a refresh without tying up a script.
 ## Overview
 
-A Streamlit Component is made out of a Python API and a frontend (built using any web tech you prefer). 
+Streamlit apps are scripts that a server runs based on interactions. When
+a user interacts with the web app, the script reruns.
 
-A Component can be used in any Streamlit app, can pass data between Python and frontend code, and and can optionally be distributed on [PyPI](https://pypi.org/) for the rest of the world to use.
+One Streamlit use case is a dashboard or realtime stats application. The
+purpose is to regularly display stats on some interval. Currently, the
+best way to support this is an infinite loop in the script, but that is
+not a great practice and has led to a less desirable developer experience
+in shutting down scripts and servers.
 
-* Create a component's API in a single line of Python:
+### How does this component help?
+
+This component provides a timer on the frontend to regularly ping the Streamlit
+server to rerun. This effectively allows the script to successfully execute and
+finish properly and avoid tying up server resources. It effectively puts a
+little more work on the user's browser than on the server.
+
+# Installation
+
+```
+pip install streamlit-autorefresh
+```
+
+# Example Usage
+
 ```python
-import streamlit.components.v1 as components
+from streamlit_autorefresh import st_autorefresh
 
-# Declare the component:
-my_component = components.declare_component("my_component", path="frontend/build")
+# Run the autorefresh about every 2000 milliseconds (2 seconds) and stop
+# after it's been refreshed 100 times.
+count = st_autorefresh(interval=2000, limit=100, key="fizzbuzzcounter")
 
-# Use it:
-my_component(greeting="Hello", name="World")
+# The function returns a counter for number of refreshes. This allows the
+# ability to make special requests at different intervals based on the count
+if count == 0:
+    st.write("Count is zero")
+elif count % 3 == 0 and count % 5 == 0:
+    st.write("FizzBuzz")
+elif count % 3 == 0:
+    st.write("Fizz")
+elif count % 5 == 0:
+    st.write("Buzz")
+else:
+    st.write(f"Count: {count}")
+
 ```
 
-* Build the component's frontend out of HTML and JavaScript (or TypeScript, or ClojureScript, or whatever you fancy). React is supported, but not required:
-```typescript
-class MyComponent extends StreamlitComponentBase {
-    public render(): ReactNode {
-        // Access arguments from Python via `this.props.args`:
-        const greeting = this.props.args["greeting"]
-        const name = this.props.args["name"]
-        return <div>{greeting}, {name}!</div>
-    }
-}
-```
+## Caveats
 
-## Quickstart
+This is a rather simplistic implementation and feature requests are welcome!
 
-* Ensure you have [Python 3.6+](https://www.python.org/downloads/), [Node.js](https://nodejs.org), and [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) installed.
-* Clone this repo.
-* Create a new Python virtual environment for the template:
-```
-$ cd template
-$ python3 -m venv venv  # create venv
-$ . venv/bin/activate   # activate venv
-$ pip install streamlit # install streamlit
-```
-* Initialize and run the component template frontend:
-```
-$ cd template/my_component/frontend
-$ npm install    # Install npm dependencies
-$ npm run start  # Start the Webpack dev server
-```
-* From a separate terminal, run the template's Streamlit app:
-```
-$ cd template
-$ . venv/bin/activate  # activate the venv you created earlier
-$ streamlit run my_component/__init__.py  # run the example
-```
-* If all goes well, you should see something like this:
-![Quickstart Success](quickstart.png)
-* Modify the frontend code at `my_component/frontend/src/MyComponent.tsx`.
-* Modify the Python code at `my_component/__init__.py`.
-
-## Examples
-
-See the `template-reactless` directory for a template that does not use [React](https://reactjs.org/).
-
-See the `examples` directory for examples on working with pandas DataFrames, integrating with third-party libraries, and more.
-
-## Community-provided Templates
-
-These templates are provided by the community. If you run into any issues, please file your issues against their repositories.
-
-- [streamlit-component-svelte-template](https://github.com/93degree/streamlit-component-svelte-template) - [@93degree](https://github.com/93degree)
-- [streamlit-component-template-vue](https://github.com/andfanilo/streamlit-component-template-vue) - [@andfanilo](https://github.com/andfanilo)
-
-## More Information
-
-* [Streamlit Components documentation](https://docs.streamlit.io/en/stable/streamlit_components.html)
-* [Streamlit Forums](https://discuss.streamlit.io/tag/custom-components)
-* [Streamlit Components gallery](https://www.streamlit.io/components)
+- The Frontend timer is not a perfect system, so the refresh interval is a
+rough estimate. Feel free to adjust the interval to a limit that's practical
+- Just like an infinite loop, a small interval, will constantly ping and make
+server do more work and should be treated with caution.
+- We recommend a `key` be added. It can be a string literal, but it will help
+in maintaining the refresh rate and count.
+- We recommend _NOT_ calling `st_autorefresh` multiple times in a script. It
+will effectively create multiple timers and refresh at weird rates. It's best
+to use one function call and utilize the counter to better adjust different
+refresh rates

@@ -65,11 +65,11 @@ def st_autorefresh(interval=1000, limit=None, key=None):
         Number of times the refresh has been triggered or max value of int
     """
 
-    count = _component_func(interval=interval, limit=limit, key=key, default=None)
+    count = _component_func(interval=interval, limit=limit, key=key)
     if count is None:
         return 0
 
-    return count
+    return int(count)
 
 
 # Add some test code to play with the component while it's in development.
@@ -83,8 +83,12 @@ if not _RELEASE:
     # it is considered a new instance and will be re-mounted on the frontend
     # and lose its current state. In this case, we want to vary the component's
     # "name" argument without having it get recreated.
-    count = st_autorefresh(5000)
+    # Run the autorefresh about every 2000 milliseconds (2 seconds) and stop
+    # after it's been refreshed 100 times.
+    count = st_autorefresh(interval=2000, limit=100, key="fizzbuzzcounter")
 
+    # The function returns a counter for number of refreshes. This allows the
+    # ability to make special requests at different intervals based on the count
     if count == 0:
         st.write("Count is zero")
     elif count % 3 == 0 and count % 5 == 0:
