@@ -25,6 +25,32 @@ little more work on the user's browser than on the server.
 pip install streamlit-autorefresh
 ```
 
+# Parameters
+
+```
+interval: int
+    Amount of time in milliseconds to 
+limit: int or None
+    Amount of refreshes to allow. If none, it will refresh infinitely.
+    While infinite refreshes sounds nice, it will continue to utilize
+    computing resources.
+debounce: boolean
+    Whether to delay the autorefresh when user interaction occurs.
+    Defaults to True in order to avoid refreshes interfering with
+    interaction effects on scripts.
+key: str or None
+    An optional key that uniquely identifies this component. If this is
+    None, and the component's arguments are changed, the component will
+    be re-mounted in the Streamlit frontend and lose its current state.
+```
+
+## Returns
+
+```
+int
+    Number of times the refresh has been triggered or max value of int
+```
+
 # Example Usage
 
 ```python

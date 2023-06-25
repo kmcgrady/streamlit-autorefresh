@@ -43,7 +43,7 @@ else:
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def st_autorefresh(interval=1000, limit=None, key=None):
+def st_autorefresh(interval=1000, *, limit=None, debounce=True, key=None):
     """Create an autorefresh instance to trigger a refresh of the application
 
     Parameters
@@ -54,6 +54,10 @@ def st_autorefresh(interval=1000, limit=None, key=None):
         Amount of refreshes to allow. If none, it will refresh infinitely.
         While infinite refreshes sounds nice, it will continue to utilize
         computing resources.
+    debounce: boolean
+        Whether to delay the autorefresh when user interaction occurs.
+        Defaults to True in order to avoid refreshes interfering with
+        interaction effects on scripts.
     key: str or None
         An optional key that uniquely identifies this component. If this is
         None, and the component's arguments are changed, the component will
@@ -65,7 +69,7 @@ def st_autorefresh(interval=1000, limit=None, key=None):
         Number of times the refresh has been triggered or max value of int
     """
 
-    count = _component_func(interval=interval, limit=limit, key=key)
+    count = _component_func(interval=interval, limit=limit, debounce=debounce, key=key)
     if count is None:
         return 0
 

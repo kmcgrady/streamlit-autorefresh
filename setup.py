@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="streamlit-autorefresh",
-    version="0.0.1",
+    version="1.0.0",
     author="Ken McGrady",
     author_email="ken.mcgrady@gmail.com",
     description="Simple way to autorefresh your Streamlit apps",

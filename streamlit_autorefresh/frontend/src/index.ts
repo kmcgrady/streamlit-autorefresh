@@ -24,7 +24,12 @@ function onRender(event: Event): void {
   const refreshLimit = data.args.limit ? parseInt(data.args.limit, 10) : null
   const refreshInterval = parseInt(data.args.interval, 10)
   if (interval) {
-    clearInterval(interval)
+    if (data.args.debounce) {
+      clearInterval(interval)
+    } else {
+      // We already have an interval so clear the screen.
+      return
+    }
   }
 
   interval = window.setInterval(() => {
