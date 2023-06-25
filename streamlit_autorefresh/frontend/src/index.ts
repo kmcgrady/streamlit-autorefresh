@@ -9,7 +9,35 @@ function counter(): () => number {
   }
 }
 
+class ArgsCheck {
+  limit: number | null = null
+  interval: number | null = null
+  key: string | null = null
+
+  setLimit(limit: number | null) {
+    const hasChanged = limit !== this.limit
+    this.limit = limit
+
+    return hasChanged
+  }
+
+  setInterval(intervalTime: number) {
+    const hasChanged = intervalTime !== this.interval
+    this.interval = intervalTime
+
+    return hasChanged
+  }
+
+  setKey(key: string | null) {
+    const hasChanged = key !== this.key
+    this.key = key
+
+    return hasChanged
+  }
+}
+
 const refreshCounter = counter()
+const argsChecker = new ArgsCheck()
 let interval: number
 
 /**
@@ -23,8 +51,10 @@ function onRender(event: Event): void {
   const data = (event as CustomEvent<RenderData>).detail
   const refreshLimit = data.args.limit ? parseInt(data.args.limit, 10) : null
   const refreshInterval = parseInt(data.args.interval, 10)
+  const shouldReset = argsChecker.setInterval(refreshInterval) || 
+    argsChecker.setKey(data.args.key) || argsChecker.setLimit(refreshLimit)
   if (interval) {
-    if (data.args.debounce) {
+    if (data.args.debounce || shouldReset) {
       clearInterval(interval)
     } else {
       // We already have an interval so clear the screen.

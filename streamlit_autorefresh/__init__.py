@@ -82,6 +82,11 @@ def st_autorefresh(interval=1000, *, limit=None, debounce=True, key=None):
 if not _RELEASE:
     import streamlit as st
 
+    secs = st.selectbox("Select a time reset", [1, 2, 3, 5], 1, lambda x: str(x) + " seconds")
+    should_debounce = st.checkbox("Debounce?", True)
+
+    st.button("Click me for a distraction")
+
     # We use the special "key" argument to assign a fixed identity to this
     # component instance. By default, when a component's arguments change,
     # it is considered a new instance and will be re-mounted on the frontend
@@ -89,7 +94,7 @@ if not _RELEASE:
     # "name" argument without having it get recreated.
     # Run the autorefresh about every 2000 milliseconds (2 seconds) and stop
     # after it's been refreshed 100 times.
-    count = st_autorefresh(interval=2000, limit=100, key="fizzbuzzcounter")
+    count = st_autorefresh(interval=secs * 1000, limit=100, debounce=should_debounce, key="fizzbuzzcounter")
 
     # The function returns a counter for number of refreshes. This allows the
     # ability to make special requests at different intervals based on the count
